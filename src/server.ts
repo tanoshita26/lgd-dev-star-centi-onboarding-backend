@@ -11,7 +11,8 @@ const app = express();
 
 app.use(express.json());
 app.use(cors({
-  // origin: 'https://lgd-dev-star-centi-onboarding.vercel.app',
+  origin: ['https://lgd-dev-star-centi-onboarding.vercel.app'],
+  credentials: true,
 }));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'uploads')));
