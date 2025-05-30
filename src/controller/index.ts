@@ -3,9 +3,9 @@ import fs from 'fs';
 import path from 'path';
 import PizZip from 'pizzip';
 import DocxTemplate from 'docxtemplater';
-import ConvertAPI from 'convertapi';
+// import ConvertAPI from 'convertapi';
 
-const convertapi = new ConvertAPI('secret_YcwGHS8NoWglAGJc');
+// const convertapi = new ConvertAPI('secret_YcwGHS8NoWglAGJc');
 
 export const submitForm = async (req: express.Request, res: express.Response) => {
   try {
@@ -58,22 +58,13 @@ export const submitForm = async (req: express.Request, res: express.Response) =>
     });
     zip.file('word/document.xml', xmlContent);
     const updatedOutput = zip.generate({ type: 'nodebuffer' });
-    const outputPath = path.join(__dirname, `../templates/GeneratedForm_${Date.now()}.docx`);
-    fs.writeFileSync(outputPath, updatedOutput);
-
-    try {
-      const result = await convertapi.convert('pdf', {
-        File: outputPath
-      });
-      const savedFile = await result.saveFiles(path.join(__dirname, '../templates'));
-      console.log('PDF saved at:', savedFile);
-      res.status(200).json({ message: 'success', result: savedFile });
-    } catch (error) {
-      console.error('PDF conversion failed:', error);
-      res.status(400).json({ message: 'error', error });
-    }
+    res.set({
+      'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'Content-Disposition': 'attachment; filename="filled.docx"',
+    });
+    return res.status(200).send(updatedOutput);
   } catch (error) {
     console.error('Error submitting form:', error);
-    res.status(500).json({ error: 'Failed to submit form' });
+    return res.status(500).json({ error: 'Failed to submit form' });
   }
 }
